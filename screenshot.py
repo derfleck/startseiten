@@ -359,16 +359,16 @@ async def take_timestamped_screenshots(sites):
     return timestamp
 
 def cleanup_old_screenshots():
-    """Remove screenshots older than 24 hours"""
-    cutoff = datetime.now() - timedelta(hours=24)
+    """Remove screenshots older than 48 hours"""
+    cutoff = datetime.now() - timedelta(hours=48)
     for dir_path in glob.glob('archive/*'):
         dir_time = datetime.strptime(os.path.basename(dir_path), '%Y%m%d_%H%M')
         if dir_time < cutoff:
             shutil.rmtree(dir_path)
 
 def generate_timeline_report(sites):
-    # Get last 24h of timestamps (96 entries for 15min intervals)
-    timestamps = sorted(glob.glob('archive/*'), reverse=True)[:96]
+    # Get last 48h of timestamps (192 entries for 15min intervals)
+    timestamps = sorted(glob.glob('archive/*'), reverse=True)[:192]
     timestamps = [os.path.basename(t) for t in timestamps]
     
     if not timestamps:
