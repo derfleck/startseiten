@@ -1,0 +1,387 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>24h Website Timeline</title>
+    <style>
+        body { 
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .timeline-controls {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+        .screenshots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .site-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: white;
+        }
+        .device-views {
+            display: grid;
+            gap: 15px;
+        }
+        .device-view img {
+            width: 100%;
+            height: auto;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .device-view img:hover {
+            transform: scale(1.02);
+        }
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .modal-content {
+            max-width: 90%;
+            max-height: 90vh;
+            margin: auto;
+            display: block;
+        }
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .modal-caption {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+            text-align: center;
+            color: #ccc;
+            padding: 10px 0;
+            height: 150px;
+        }
+        /* Controls */
+        select {
+            padding: 8px;
+            margin-right: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        h3 { margin-top: 0; }
+        .timestamp { 
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="timeline-controls">
+        <h1>Startseiten</h1>
+        <div>
+            <select id="timestampSelect">
+                
+                <option value="20241204_1705">20241204_1705</option>
+                
+            </select>
+            <select id="deviceFilter">
+                <option value="all">All Devices</option>
+                <option value="desktop">Desktop</option>
+                <option value="mobile">Mobile</option>
+            </select>
+        </div>
+        <p class="timestamp">Generated at: 2024-12-04 17:06:03</p>
+    </div>
+    
+    <div class="screenshots-grid">
+        
+        <div class="site-card">
+            <h3>kurier</h3>
+            <p><a href="https://kurier.at" target="_blank">https://kurier.at</a></p>
+            <div class="device-views">
+                
+                <div class="device-view" data-device="desktop">
+                    <h4>Desktop</h4>
+                    <img src="archive/20241204_1705/kurier_desktop.jpeg" 
+                        class="screenshot-img"
+                        data-site="kurier"
+                        data-device="desktop"
+                        onclick="openModal(this)">
+                </div>
+                
+                <div class="device-view" data-device="mobile">
+                    <h4>Mobile</h4>
+                    <img src="archive/20241204_1705/kurier_mobile.jpeg" 
+                        class="screenshot-img"
+                        data-site="kurier"
+                        data-device="mobile"
+                        onclick="openModal(this)">
+                </div>
+                
+            </div>
+        </div>
+        
+        <div class="site-card">
+            <h3>derstandard</h3>
+            <p><a href="https://derstandard.at" target="_blank">https://derstandard.at</a></p>
+            <div class="device-views">
+                
+                <div class="device-view" data-device="desktop">
+                    <h4>Desktop</h4>
+                    <img src="archive/20241204_1705/derstandard_desktop.jpeg" 
+                        class="screenshot-img"
+                        data-site="derstandard"
+                        data-device="desktop"
+                        onclick="openModal(this)">
+                </div>
+                
+                <div class="device-view" data-device="mobile">
+                    <h4>Mobile</h4>
+                    <img src="archive/20241204_1705/derstandard_mobile.jpeg" 
+                        class="screenshot-img"
+                        data-site="derstandard"
+                        data-device="mobile"
+                        onclick="openModal(this)">
+                </div>
+                
+            </div>
+        </div>
+        
+        <div class="site-card">
+            <h3>krone</h3>
+            <p><a href="https://krone.at" target="_blank">https://krone.at</a></p>
+            <div class="device-views">
+                
+                <div class="device-view" data-device="desktop">
+                    <h4>Desktop</h4>
+                    <img src="archive/20241204_1705/krone_desktop.jpeg" 
+                        class="screenshot-img"
+                        data-site="krone"
+                        data-device="desktop"
+                        onclick="openModal(this)">
+                </div>
+                
+                <div class="device-view" data-device="mobile">
+                    <h4>Mobile</h4>
+                    <img src="archive/20241204_1705/krone_mobile.jpeg" 
+                        class="screenshot-img"
+                        data-site="krone"
+                        data-device="mobile"
+                        onclick="openModal(this)">
+                </div>
+                
+            </div>
+        </div>
+        
+        <div class="site-card">
+            <h3>heute</h3>
+            <p><a href="https://heute.at" target="_blank">https://heute.at</a></p>
+            <div class="device-views">
+                
+                <div class="device-view" data-device="desktop">
+                    <h4>Desktop</h4>
+                    <img src="archive/20241204_1705/heute_desktop.jpeg" 
+                        class="screenshot-img"
+                        data-site="heute"
+                        data-device="desktop"
+                        onclick="openModal(this)">
+                </div>
+                
+                <div class="device-view" data-device="mobile">
+                    <h4>Mobile</h4>
+                    <img src="archive/20241204_1705/heute_mobile.jpeg" 
+                        class="screenshot-img"
+                        data-site="heute"
+                        data-device="mobile"
+                        onclick="openModal(this)">
+                </div>
+                
+            </div>
+        </div>
+        
+        <div class="site-card">
+            <h3>diepresse</h3>
+            <p><a href="https://diepresse.com" target="_blank">https://diepresse.com</a></p>
+            <div class="device-views">
+                
+                <div class="device-view" data-device="desktop">
+                    <h4>Desktop</h4>
+                    <img src="archive/20241204_1705/diepresse_desktop.jpeg" 
+                        class="screenshot-img"
+                        data-site="diepresse"
+                        data-device="desktop"
+                        onclick="openModal(this)">
+                </div>
+                
+                <div class="device-view" data-device="mobile">
+                    <h4>Mobile</h4>
+                    <img src="archive/20241204_1705/diepresse_mobile.jpeg" 
+                        class="screenshot-img"
+                        data-site="diepresse"
+                        data-device="mobile"
+                        onclick="openModal(this)">
+                </div>
+                
+            </div>
+        </div>
+        
+        <div class="site-card">
+            <h3>o24</h3>
+            <p><a href="https://oe24.at" target="_blank">https://oe24.at</a></p>
+            <div class="device-views">
+                
+                <div class="device-view" data-device="desktop">
+                    <h4>Desktop</h4>
+                    <img src="archive/20241204_1705/o24_desktop.jpeg" 
+                        class="screenshot-img"
+                        data-site="o24"
+                        data-device="desktop"
+                        onclick="openModal(this)">
+                </div>
+                
+                <div class="device-view" data-device="mobile">
+                    <h4>Mobile</h4>
+                    <img src="archive/20241204_1705/o24_mobile.jpeg" 
+                        class="screenshot-img"
+                        data-site="o24"
+                        data-device="mobile"
+                        onclick="openModal(this)">
+                </div>
+                
+            </div>
+        </div>
+        
+        <div class="site-card">
+            <h3>orf</h3>
+            <p><a href="https://orf.at" target="_blank">https://orf.at</a></p>
+            <div class="device-views">
+                
+                <div class="device-view" data-device="desktop">
+                    <h4>Desktop</h4>
+                    <img src="archive/20241204_1705/orf_desktop.jpeg" 
+                        class="screenshot-img"
+                        data-site="orf"
+                        data-device="desktop"
+                        onclick="openModal(this)">
+                </div>
+                
+                <div class="device-view" data-device="mobile">
+                    <h4>Mobile</h4>
+                    <img src="archive/20241204_1705/orf_mobile.jpeg" 
+                        class="screenshot-img"
+                        data-site="orf"
+                        data-device="mobile"
+                        onclick="openModal(this)">
+                </div>
+                
+            </div>
+        </div>
+        
+        <div class="site-card">
+            <h3>kleinezeitung</h3>
+            <p><a href="https://kleinezeitung.at" target="_blank">https://kleinezeitung.at</a></p>
+            <div class="device-views">
+                
+                <div class="device-view" data-device="desktop">
+                    <h4>Desktop</h4>
+                    <img src="archive/20241204_1705/kleinezeitung_desktop.jpeg" 
+                        class="screenshot-img"
+                        data-site="kleinezeitung"
+                        data-device="desktop"
+                        onclick="openModal(this)">
+                </div>
+                
+                <div class="device-view" data-device="mobile">
+                    <h4>Mobile</h4>
+                    <img src="archive/20241204_1705/kleinezeitung_mobile.jpeg" 
+                        class="screenshot-img"
+                        data-site="kleinezeitung"
+                        data-device="mobile"
+                        onclick="openModal(this)">
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Modal -->
+    <div id="imageModal" class="modal">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
+        <div id="modalCaption" class="modal-caption"></div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        const captionText = document.getElementById('modalCaption');
+
+        function openModal(img) {
+            modal.style.display = "flex";
+            modalImg.src = img.src;
+            captionText.innerHTML = `${img.dataset.site} - ${img.dataset.device}`;
+        }
+
+        function closeModal() {
+            modal.style.display = "none";
+        }
+
+        // Close modal when clicking outside the image
+        modal.onclick = function(event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Update screenshots when timestamp changes
+        document.getElementById('timestampSelect').addEventListener('change', (e) => {
+            const timestamp = e.target.value;
+            document.querySelectorAll('.screenshot-img').forEach(img => {
+                const site = img.dataset.site;
+                const device = img.dataset.device;
+                img.src = `archive/${timestamp}/${site}_${device}.jpeg`;
+            });
+        });
+
+        // Device filter
+        document.getElementById('deviceFilter').addEventListener('change', (e) => {
+            const device = e.target.value;
+            document.querySelectorAll('.device-view').forEach(view => {
+                if (device === 'all' || view.dataset.device === device) {
+                    view.style.display = 'block';
+                } else {
+                    view.style.display = 'none';
+                }
+            });
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
