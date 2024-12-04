@@ -5,6 +5,8 @@ import os
 import glob
 import shutil
 from jinja2 import Template
+from pytz import timezone
+
 
 sites = [
         {
@@ -262,64 +264,84 @@ async def take_screenshot(config: dict, device_type: str = 'desktop'):
     """
     Take screenshot with configuration dictionary containing:
     {
-        'url': str,
-        'name': str,
-        'button_selector': str,
-        'frame_selector': str (optional),
-        'output_dir': str (optional)
+        'url': str,  # The URL of the website to capture
+        'name': str,  # The name of the website (used for naming the screenshot file)
+        'button_selector': str,  # The CSS selector for the consent button
+        'frame_selector': str (optional),  # The CSS selector for the iframe containing the consent button (if any)
+        'output_dir': str (optional)  # The directory where the screenshot will be saved (default is current directory)
     }
     device_type: 'desktop' or 'mobile'
     """
     async with async_playwright() as p:
-        # Device configurations
-        devices = {
-            'desktop': {
-                'viewport': {'width': 1920, 'height': 1080},
-                'user_agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-            },
-            'mobile': {
-                **p.devices['iPhone 13'],  # Use Playwright's predefined device
+        try:
+            # Device configurations
+            devices = {
+                'desktop': {
+                    'viewport': {'width': 1920, 'height': 1080},
+                    'user_agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                },
+                'mobile': {
+                    **p.devices['iPhone 13'],  # Use Playwright's predefined device
+                }
             }
-        }
-        
-        browser = await p.chromium.launch()
-        context = await browser.new_context(**devices[device_type])
-        page = await context.new_page()
-        
-        output_dir = config.get('output_dir', '.')
-        output_path = f"{output_dir}/{config['name']}_{device_type}.jpeg"
-        
-        # Wait for page load
-        await page.goto(config['url'], wait_until='networkidle')
-        await page.wait_for_load_state('domcontentloaded')
-        
-        async def try_click_consent():
+            
+            browser = await p.chromium.launch()
+            context = await browser.new_context(**devices[device_type])
+            page = await context.new_page()
+            
+            output_dir = config.get('output_dir', '.')
+            output_path = f"{output_dir}/{config['name']}_{device_type}.jpeg"
+            
+            # Wait for page load
+            # await page.goto(config['url'], wait_until='networkidle')
+            # await page.wait_for_load_state('domcontentloaded')
+            
             try:
-                if config.get('frame_selector'):
-                    frame = page.frame_locator(config['frame_selector'])
-                    await frame.locator(config['button_selector']).click(timeout=2000)
-                else:
-                    await page.locator(config['button_selector']).click(timeout=2000)
-                return True
+                await page.goto(
+                    config['url'],
+                    wait_until='domcontentloaded',
+                    timeout=20000
+                )
+                await page.wait_for_timeout(2000)
+            
+                async def try_click_consent():
+                    try:
+                        if config.get('frame_selector'):
+                            frame = page.frame_locator(config['frame_selector'])
+                            await frame.locator(config['button_selector']).click(timeout=2000)
+                        else:
+                            await page.locator(config['button_selector']).click(timeout=2000)
+                        return True
+                    except Exception as e:
+                        print(f"Click attempt failed for {config['name']} ({device_type}): {str(e)}")
+                        return False
+                
+                # Retry mechanism
+                max_retries = 5
+                for i in range(max_retries):
+                    if await try_click_consent():
+                        print(f"Successfully clicked consent for {config['name']} ({device_type}) on try {i+1}")
+                        break
+                    print(f"Attempt {i+1} failed for {config['name']} ({device_type}), waiting...")
+                    await page.wait_for_timeout(2000)
+                
+                # Take full page screenshot
+                await page.wait_for_timeout(5000)
+                await page.screenshot(path=output_path, type='jpeg', quality=50)
+            except asyncio.TimeoutError:
+                print(f"Timeout error capturing screenshot for {config['name']} ({device_type})")
             except Exception as e:
-                print(f"Click attempt failed for {config['name']} ({device_type}): {str(e)}")
-                return False
-        
-        # Retry mechanism
-        max_retries = 5
-        for i in range(max_retries):
-            if await try_click_consent():
-                print(f"Successfully clicked consent for {config['name']} ({device_type}) on try {i+1}")
-                break
-            print(f"Attempt {i+1} failed for {config['name']} ({device_type}), waiting...")
-            await page.wait_for_timeout(2000)
-        
-        # Take full page screenshot
-        await page.wait_for_timeout(5000)
-        await page.screenshot(path=output_path, type='jpeg', quality=50)
-        await browser.close()
+                print(f"Error capturing screenshot for {config['name']} ({device_type}): {str(e)}")
+        finally:
+            await browser.close()
 
 async def take_timestamped_screenshots(sites):
+    """
+    Take timestamped screenshots for a list of sites.
+
+    Args:
+        sites (list): A list of dictionaries, each containing the configuration for a site.
+    """
     # Create timestamp-based directory
     timestamp = datetime.now().strftime('%Y%m%d_%H%M')
     screenshots_dir = f'archive/{timestamp}'
@@ -354,10 +376,13 @@ def generate_timeline_report(sites):
         return
     
     template = Template(TIMELINE_HTML)
+    # Specify the timezone
+    tz = timezone('Europe/Vienna')
+
     html_content = template.render(
         timestamps=timestamps,
         sites=sites,
-        generated_at=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        generated_at=datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S %Z')
     )
     
     with open('timeline_report.html', 'w') as f:
