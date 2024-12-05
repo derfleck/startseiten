@@ -343,7 +343,8 @@ async def take_timestamped_screenshots(sites):
         sites (list): A list of dictionaries, each containing the configuration for a site.
     """
     # Create timestamp-based directory
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M')
+    tz = timezone('Europe/Vienna')
+    timestamp = datetime.now(tz).strftime('%Y%m%d_%H%M')
     screenshots_dir = f'archive/{timestamp}'
     os.makedirs(screenshots_dir, exist_ok=True)
     
